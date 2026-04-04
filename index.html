@@ -20,9 +20,26 @@ textarea:focus{outline:none;border-color:#bbb}
 textarea:disabled{opacity:0.6;cursor:default}
 .response{margin-top:10px;padding:8px 12px;background:#f9f9f7;border-left:2px solid #ddd;border-radius:0 8px 8px 0;font-size:13px;color:#666;line-height:1.5;font-style:italic}
 .libre-tag{font-size:11px;color:#aaa;border:0.5px solid #e0e0dc;border-radius:8px;padding:2px 8px}
+.section-divider{border:none;border-top:0.5px solid #e0e0dc;margin:1rem 0}
+.notes-zone{margin-top:1rem}
+.notes-label{font-size:12px;font-weight:500;color:#aaa;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.upload-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;font-size:13px;color:#666}
+.upload-btn:hover{background:#f0f0ee;border-style:solid}
+.upload-btn:disabled{opacity:0.4;cursor:default}
+.notes-list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.note-item{background:#f9f9f7;border:0.5px solid #e0e0dc;border-radius:8px;padding:10px 12px}
+.note-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.note-item-label{font-size:11px;color:#aaa}
+.note-remove{background:none;border:none;cursor:pointer;font-size:13px;color:#ccc;padding:0}
+.note-remove:hover{color:#c0392b}
+.note-transcription{font-size:13px;color:#555;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.note-transcribing{font-size:12px;color:#aaa;font-style:italic}
+.note-thumb{width:48px;height:48px;object-fit:cover;border-radius:6px;border:0.5px solid #e0e0dc;margin-bottom:6px}
 .action-btn{width:100%;padding:10px;border:0.5px solid #ccc;border-radius:8px;background:none;cursor:pointer;font-size:14px;font-weight:500;color:#1a1a1a;margin-bottom:0.75rem}
 .action-btn:hover{background:#f0f0ee}
 .action-btn:disabled{opacity:0.4;cursor:default}
+.delete-btn{width:100%;padding:8px;border:0.5px solid #f0c0c0;border-radius:8px;background:none;cursor:pointer;font-size:13px;color:#c0392b;margin-bottom:0.75rem;display:none}
+.delete-btn:hover{background:#fff0f0}
 .locked-banner{text-align:center;font-size:13px;color:#999;padding:6px 0;margin-bottom:0.75rem;display:none}
 .bilans{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:0.75rem}
 .bilan-btn{flex:1;min-width:140px;padding:8px 12px;border:0.5px solid #ccc;border-radius:8px;background:none;cursor:pointer;font-size:13px;color:#666}
@@ -54,7 +71,6 @@ textarea:disabled{opacity:0.6;cursor:default}
 </head>
 <body>
 <div class="wrap">
-
   <div class="gdrive-bar">
     <div class="gdrive-bar-top">
       <div style="font-size:13px;font-weight:500;color:#1a1a1a">☁️ Google Drive</div>
@@ -62,9 +78,7 @@ textarea:disabled{opacity:0.6;cursor:default}
     </div>
     <div class="gdrive-status" id="gdriveStatus">Non connecté — connecte-toi pour sauvegarder et retrouver ton journal depuis n'importe quel appareil ou compte Claude.</div>
   </div>
-
   <div id="toast" class="toast"></div>
-
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
     <button class="nav-btn" id="prevBtn">←</button>
     <div style="text-align:center">
@@ -73,17 +87,15 @@ textarea:disabled{opacity:0.6;cursor:default}
     </div>
     <button class="nav-btn" id="nextBtn">→</button>
   </div>
-
   <div id="lockedBanner" class="locked-banner">Entrée enregistrée pour aujourd'hui.</div>
   <div id="questionsWrap"></div>
   <button class="action-btn" id="saveBtn" disabled>Connecte-toi à Google Drive pour enregistrer</button>
-
+  <button class="delete-btn" id="deleteBtn">Supprimer cette entrée</button>
   <div class="bilans">
     <button class="bilan-btn" id="b7j" disabled>7 derniers jours</button>
     <button class="bilan-btn" id="bglobal" disabled>Bilan global</button>
     <button class="bilan-btn" id="bames" disabled>Bilan états d'âme</button>
   </div>
-
   <div class="memoire-section">
     <button class="memoire-btn" id="memoireBtn" disabled>Générer un résumé mémoire</button>
     <div class="memoire-output" id="memoireOutput">
@@ -92,214 +104,62 @@ textarea:disabled{opacity:0.6;cursor:default}
       <button class="memoire-copy-btn" id="memoireCopyBtn">Copier</button>
     </div>
   </div>
-
   <div id="bilanWrap"></div>
 </div>
-
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 const CLIENT_ID='656626464520-relhdglrev2himlms0vjffqiq7tie6m6.apps.googleusercontent.com';
 const SCOPES='https://www.googleapis.com/auth/drive.appdata';
 const FILE_NAME='journal_du_soir_v2.json';
-
 const QUESTIONS=[
-  "Une chose que tu as minimisée ou ignorée aujourd'hui",
-  "Un moment où la boucle s'est activée",
-  "Comment tu t'es traité aujourd'hui",
-  "Une chose que tu as faite — sans la tempérer"
+  "Qu'est-ce que tu as fait aujourd'hui — une chose concrète, même petite ?",
+  "Est-ce que tu as eu une spirale anxieuse aujourd'hui ? Si oui, sur quoi ?",
+  "Comment tu t'es traité aujourd'hui ?",
+  "Tu as agi pour toi aujourd'hui, ou pour le regard de quelqu'un d'autre ?",
+  "Une chose que tu as faite aujourd'hui dont tu n'as pas minimisé la valeur."
 ];
-const Q_LIBRE="Comment tu te sens ce soir — ce que tu veux raconter de ta journée, tes états d'âme du moment.";
-
-let accessToken=null;
-let fileId=null;
-let allEntries=[];
-let currentDate=todayStr();
-let connected=false;
-
+const Q_LIBRE="Comment tu te sens ce soir — tes pensées, textes, poèmes, ce que tu veux écrire.";
+const Q_NOTES="Notes manuscrites — photos de tes écrits du jour, transcrites par Claude.";
+let accessToken=null,fileId=null,allEntries=[],currentDate=todayStr(),connected=false;
+let pendingNotes=[];
 function todayStr(){return new Date().toISOString().slice(0,10)}
 function fmtDate(s){const[y,m,d]=s.split('-');return new Date(y,m-1,d).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
 function dayRel(s){const t=todayStr();if(s===t)return"Aujourd'hui";const diff=Math.round((new Date(t)-new Date(s))/86400000);if(diff===1)return'Hier';if(diff===-1)return'Demain';return''}
 function showToast(msg,dur=3500){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',dur)}
-
 function getEntry(date){return allEntries.find(e=>e._date===date)||null}
 function setEntry(date,data){const idx=allEntries.findIndex(e=>e._date===date);const entry={...data,_date:date};if(idx>=0)allEntries[idx]=entry;else allEntries.push(entry);allEntries.sort((a,b)=>a._date.localeCompare(b._date))}
-
-async function driveReq(url,opts={}){
-  const res=await fetch(url,{...opts,headers:{'Authorization':'Bearer '+accessToken,...(opts.headers||{})}});
-  return res;
-}
-
-async function findFile(){
-  const res=await driveReq(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${FILE_NAME}'&fields=files(id)`);
-  const d=await res.json();
-  return d.files&&d.files.length?d.files[0].id:null;
-}
-
-async function loadFromDrive(){
-  try{
-    fileId=await findFile();
-    if(!fileId){allEntries=[];return;}
-    const res=await driveReq(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
-    const d=await res.json();
-    allEntries=Array.isArray(d)?d:[];
-  }catch(e){allEntries=[];}
-}
-
-async function saveToDrive(){
-  const blob=new Blob([JSON.stringify(allEntries,null,2)],{type:'application/json'});
-  if(fileId){
-    await driveReq(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`,{method:'PATCH',body:blob,headers:{'Content-Type':'application/json'}});
-  }else{
-    const meta=JSON.stringify({name:FILE_NAME,parents:['appDataFolder']});
-    const form=new FormData();
-    form.append('metadata',new Blob([meta],{type:'application/json'}));
-    form.append('file',blob);
-    const res=await driveReq('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body:form});
-    const d=await res.json();fileId=d.id;
-  }
-}
-
-function initConnect(){
-  const btn=document.getElementById('gdriveBtn');
-  btn.addEventListener('click',()=>{
-    if(!window.google||!window.google.accounts){showToast('Chargement en cours, réessaie dans 2 secondes.');return;}
-    const client=window.google.accounts.oauth2.initTokenClient({
-      client_id:CLIENT_ID,scope:SCOPES,
-      callback:async resp=>{
-        if(resp.error){showToast('Erreur de connexion Google Drive.');return;}
-        accessToken=resp.access_token;
-        connected=true;
-        btn.textContent='✓ Connecté';
-        btn.classList.add('connected');
-        document.getElementById('gdriveStatus').textContent='Connecté — tes données sont synchronisées avec Google Drive.';
-        showToast('Connecté à Google Drive ✓');
-        await loadFromDrive();
-        render();
-      }
-    });
-    client.requestAccessToken({prompt:'consent'});
-  });
-}
-
-function renderQuestions(entry,locked){
-  const w=document.getElementById('questionsWrap');w.innerHTML='';
-  QUESTIONS.forEach((q,i)=>{
-    const c=document.createElement('div');c.className='card';
-    const val=entry&&entry.answers&&entry.answers[i]?entry.answers[i]:'';
-    const resp=entry&&entry.responses&&entry.responses[i]?`<div class="response">${entry.responses[i]}</div>`:'';
-    c.innerHTML=`<div class="q-num">Question ${i+1}</div><div class="q-label">${q}</div><textarea rows="2" id="q${i}"${locked?' disabled':''}>${val}</textarea>${resp}`;
-    w.appendChild(c);
-  });
-  const cl=document.createElement('div');cl.className='card';
-  cl.innerHTML=`<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px"><div class="q-label" style="margin:0">Ce soir</div><span class="libre-tag">espace libre</span></div><div style="font-size:13px;color:#aaa;margin-bottom:8px">${Q_LIBRE}</div><textarea rows="5" id="q4"${locked?' disabled':''}>${entry&&entry.libre?entry.libre:''}</textarea>`;
-  w.appendChild(cl);
-}
-
-function render(){
-  document.getElementById('dayLabel').textContent=dayRel(currentDate)||'';
-  document.getElementById('dateLabel').textContent=fmtDate(currentDate);
-  const isToday=currentDate===todayStr();
-  const entry=getEntry(currentDate);
-  const locked=!!(entry&&entry.locked);
-  document.getElementById('lockedBanner').style.display=locked?'block':'none';
-  const saveBtn=document.getElementById('saveBtn');
-  if(!connected){saveBtn.disabled=true;saveBtn.textContent='Connecte-toi à Google Drive pour enregistrer';}
-  else if(locked){saveBtn.disabled=true;saveBtn.textContent='Entrée enregistrée';}
-  else if(!isToday){saveBtn.style.display='none';}
-  else{saveBtn.style.display='block';saveBtn.disabled=false;saveBtn.textContent='Enregistrer';}
-  renderQuestions(entry,locked||(!isToday&&!!entry));
-  const has2=allEntries.length>=2;
-  ['b7j','bglobal','bames','memoireBtn'].forEach(id=>document.getElementById(id).disabled=!has2);
-}
-
-render();
-initConnect();
-
-document.getElementById('prevBtn').addEventListener('click',()=>{
-  const d=new Date(currentDate);d.setDate(d.getDate()-1);currentDate=d.toISOString().slice(0,10);
-  render();document.getElementById('bilanWrap').innerHTML='';document.getElementById('memoireOutput').style.display='none';
-});
-document.getElementById('nextBtn').addEventListener('click',()=>{
-  const d=new Date(currentDate);d.setDate(d.getDate()+1);const s=d.toISOString().slice(0,10);
-  if(s<=todayStr()){currentDate=s;render();document.getElementById('bilanWrap').innerHTML='';document.getElementById('memoireOutput').style.display='none';}
-});
-
-document.getElementById('saveBtn').addEventListener('click',async()=>{
-  const btn=document.getElementById('saveBtn');btn.disabled=true;btn.textContent='Analyse en cours...';
-  const answers=QUESTIONS.map((_,i)=>document.getElementById('q'+i).value.trim());
-  const libre=document.getElementById('q4').value.trim();
-  const responses=[];
-  for(let i=0;i<4;i++){
-    if(answers[i]){
-      try{
-        const r=await callClaude(`Tu es un interlocuteur bienveillant mais direct. Question posée : "${QUESTIONS[i]}". Réponse de l'utilisateur : "${answers[i]}". Écris une seule phrase courte (max 15 mots), sans guillemets.`);
-        responses.push(r);
-      }catch(e){responses.push('');}
-    }else responses.push('');
-  }
-  setEntry(currentDate,{answers,libre,responses,locked:true,savedAt:new Date().toISOString()});
-  btn.textContent='Sauvegarde...';
-  await saveToDrive();
-  showToast('Entrée enregistrée et sauvegardée sur Google Drive ✓');
-  render();
-});
-
-async function callClaude(prompt){
-  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,system:'Tu es bienveillant et direct. Une phrase max.',messages:[{role:'user',content:prompt}]})});
-  const d=await r.json();return d.content?d.content.filter(b=>b.type==='text').map(b=>b.text).join(''):'';
-}
-async function callClaudeBilan(prompt){
-  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'Réponds UNIQUEMENT en JSON valide, sans backticks, sans texte autour.',messages:[{role:'user',content:prompt}]})});
-  const d=await r.json();const raw=d.content?d.content.filter(b=>b.type==='text').map(b=>b.text).join(''):'{}';
-  try{return JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){return{};}
-}
-
-async function renderBilan(type){
-  const bw=document.getElementById('bilanWrap');
-  bw.innerHTML=`<div class="lmsg">Génération en cours...</div>`;
-  let pool=allEntries;
-  if(type==='7j'){const c=new Date(todayStr());c.setDate(c.getDate()-7);pool=allEntries.filter(e=>e._date>=c.toISOString().slice(0,10));}
-  if(pool.length<2){bw.innerHTML=`<div class="lmsg">Pas assez d'entrées sur cette période.</div>`;return;}
-  if(type==='ames'){
-    const libres=pool.filter(e=>e.libre&&e.libre.trim()).map(e=>`[${e._date}] ${e.libre}`).join('\n\n');
-    if(!libres){bw.innerHTML=`<div class="lmsg">Pas d'espaces libres remplis.</div>`;return;}
-    const res=await callClaudeBilan(`Voici les espaces libres d'un journal du soir :\n\n${libres}\n\nGénère un JSON avec exactement ces clés : "continuite" (fils conducteurs émotionnels), "ruptures" (changements ou bascules), "lecture" (ce que ça révèle sans filtre).`);
-    bw.innerHTML=`<div class="bilan-card"><div class="bilan-title">Bilan états d'âme — ${pool.length} entrées</div><div class="bilan-section s-rose"><strong>Continuité émotionnelle</strong><br>${res.continuite||'—'}</div><div class="bilan-section s-amber"><strong>Ruptures ou variations</strong><br>${res.ruptures||'—'}</div><div class="bilan-section s-grisbleu"><strong>Ce que ça dit</strong><br>${res.lecture||'—'}</div></div>`;
-  }else{
-    const lines=pool.map(e=>QUESTIONS.map((q,i)=>`Q${i+1} — ${q}\nRéponse : ${e.answers&&e.answers[i]?e.answers[i]:'—'}`).join('\n')+`\nDate : ${e._date}`).join('\n\n---\n\n');
-    const label=type==='7j'?'7 derniers jours':'toute la période';
-    const res=await callClaudeBilan(`Voici les entrées de journal du soir pour ${label} :\n\n${lines}\n\nGénère un JSON avec exactement ces clés : "avance" (progressions concrètes), "stagne" (ce qui tourne en rond, sans ménagement), "pattern" (schéma récurrent émotionnel ou comportemental), "actions" (2-3 choses concrètes et inconfortables à mettre en place).`);
-    bw.innerHTML=`<div class="bilan-card"><div class="bilan-title">${type==='7j'?'7 derniers jours':'Bilan global'} — ${pool.length} entrée(s)</div><div class="bilan-section s-vert"><strong>Ce qui avance</strong><br>${res.avance||'—'}</div><div class="bilan-section s-orange"><strong>Ce qui stagne ou régresse</strong><br>${res.stagne||'—'}</div><div class="bilan-section s-violet"><strong>Pattern</strong><br>${res.pattern||'—'}</div><div class="bilan-section s-bleu"><strong>Ce que tu peux mettre en place</strong><br>${res.actions||'—'}</div></div>`;
-  }
-}
-
+function deleteEntry(date){allEntries=allEntries.filter(e=>e._date!==date)}
+async function driveReq(url,opts={}){return fetch(url,{...opts,headers:{'Authorization':'Bearer '+accessToken,...(opts.headers||{})}})}
+async function findFile(){const res=await driveReq(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${FILE_NAME}'&fields=files(id)`);const d=await res.json();return d.files&&d.files.length?d.files[0].id:null}
+async function loadFromDrive(){try{fileId=await findFile();if(!fileId){allEntries=[];return;}const res=await driveReq(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);const d=await res.json();allEntries=Array.isArray(d)?d:[];}catch(e){allEntries=[];}}
+async function saveToDrive(){const blob=new Blob([JSON.stringify(allEntries,null,2)],{type:'application/json'});if(fileId){await driveReq(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`,{method:'PATCH',body:blob,headers:{'Content-Type':'application/json'}});}else{const meta=JSON.stringify({name:FILE_NAME,parents:['appDataFolder']});const form=new FormData();form.append('metadata',new Blob([meta],{type:'application/json'}));form.append('file',blob);const res=await driveReq('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body:form});const d=await res.json();fileId=d.id;}}
+function initConnect(){const btn=document.getElementById('gdriveBtn');btn.addEventListener('click',()=>{if(!window.google||!window.google.accounts){showToast('Chargement en cours, réessaie dans 2 secondes.');return;}const client=window.google.accounts.oauth2.initTokenClient({client_id:CLIENT_ID,scope:SCOPES,callback:async resp=>{if(resp.error){showToast('Erreur de connexion Google Drive.');return;}accessToken=resp.access_token;connected=true;btn.textContent='✓ Connecté';btn.classList.add('connected');document.getElementById('gdriveStatus').textContent='Connecté — tes données sont synchronisées avec Google Drive.';showToast('Connecté à Google Drive ✓');await loadFromDrive();render();}});client.requestAccessToken({prompt:'consent'});})}
+function fileToBase64(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=e=>resolve(e.target.result.split(',')[1]);r.onerror=reject;r.readAsDataURL(file);})}
+function fileToDataUrl(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=e=>resolve(e.target.result);r.onerror=reject;r.readAsDataURL(file);})}
+async function transcribeImage(base64,mimeType){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,system:'Tu transcris fidèlement le texte manuscrit visible sur les images. Tu respectes les sauts de ligne, la ponctuation et le style. Tu ne corriges pas, tu ne commentes pas, tu transcris uniquement.',messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mimeType,data:base64}},{type:'text',text:'Transcris exactement le texte manuscrit de cette image.'}]}]})});const d=await r.json();return d.content?d.content.filter(b=>b.type==='text').map(b=>b.text).join(''):'';}
+function renderNotesSaved(notes,container){container.innerHTML='';if(!notes||!notes.length)return;notes.forEach((n,i)=>{const item=document.createElement('div');item.className='note-item';item.innerHTML=`<div class="note-item-header"><span class="note-item-label">Note ${i+1}</span></div><div class="note-transcription">${n.transcription||''}</div>`;container.appendChild(item);});}
+function renderNotesPending(container,locked){container.innerHTML='';if(locked){pendingNotes.forEach((n,i)=>{const item=document.createElement('div');item.className='note-item';item.innerHTML=`<div class="note-item-header"><span class="note-item-label">Note ${i+1}</span></div><div class="note-transcription">${n.transcription||''}</div>`;container.appendChild(item);});return;}pendingNotes.forEach((n,i)=>{const item=document.createElement('div');item.className='note-item';const transcText=n.transcribing?`<div class="note-transcribing">Transcription en cours...</div>`:`<div class="note-transcription">${n.transcription||''}</div>`;item.innerHTML=`<div class="note-item-header"><span class="note-item-label">Note ${i+1}</span><button class="note-remove" data-idx="${i}">✕</button></div>${n.dataUrl?`<img src="${n.dataUrl}" class="note-thumb" alt="note">`:''}${transcText}`;container.appendChild(item);});container.querySelectorAll('.note-remove').forEach(btn=>{btn.addEventListener('click',()=>{pendingNotes.splice(parseInt(btn.dataset.idx),1);renderNotesPending(container,false);});});}
+function renderQuestions(entry,locked){const w=document.getElementById('questionsWrap');w.innerHTML='';QUESTIONS.forEach((q,i)=>{const c=document.createElement('div');c.className='card';const val=entry&&entry.answers&&entry.answers[i]?entry.answers[i]:'';const resp=entry&&entry.responses&&entry.responses[i]?`<div class="response">${entry.responses[i]}</div>`:'';c.innerHTML=`<div class="q-num">Question ${i+1}</div><div class="q-label">${q}</div><textarea rows="2" id="q${i}"${locked?' disabled':''}>${val}</textarea>${resp}`;w.appendChild(c);});
+const cl=document.createElement('div');cl.className='card';const libreVal=entry&&entry.libre?entry.libre:'';const libreDisabled=locked?' disabled':'';
+cl.innerHTML=`<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px"><div class="q-label" style="margin:0">Ce soir</div><span class="libre-tag">espace libre</span></div><div style="font-size:13px;color:#aaa;margin-bottom:8px">${Q_LIBRE}</div><textarea rows="5" id="q5"${libreDisabled}>${libreVal}</textarea><hr class="section-divider"><div class="notes-zone"><div class="notes-label"><span>📝 Notes manuscrites</span><span style="font-size:11px;color:#ccc;font-weight:400">optionnel</span></div><div style="font-size:12px;color:#aaa;margin-bottom:8px">${Q_NOTES}</div>${!locked?`<button class="upload-btn" id="uploadNoteBtn">📷 Ajouter une photo</button><input type="file" id="noteFileInput" accept="image/*" style="display:none" multiple>`:''}<div class="notes-list" id="notesList"></div></div>`;
+w.appendChild(cl);
+const notesList=cl.querySelector('#notesList');
+if(locked){if(entry&&entry.notes&&entry.notes.length){renderNotesSaved(entry.notes,notesList);}}
+else{pendingNotes=[];renderNotesPending(notesList,false);const uploadBtn=cl.querySelector('#uploadNoteBtn');const fileInput=cl.querySelector('#noteFileInput');uploadBtn.addEventListener('click',()=>fileInput.click());fileInput.addEventListener('change',async e=>{const files=Array.from(e.target.files);for(const file of files){const dataUrl=await fileToDataUrl(file);const noteObj={dataUrl,transcription:'',transcribing:true};pendingNotes.push(noteObj);renderNotesPending(notesList,false);try{const base64=await fileToBase64(file);const transcription=await transcribeImage(base64,file.type||'image/jpeg');noteObj.transcription=transcription;noteObj.transcribing=false;}catch(err){noteObj.transcription='(erreur de transcription)';noteObj.transcribing=false;}renderNotesPending(notesList,false);}fileInput.value='';});}}
+function render(){document.getElementById('dayLabel').textContent=dayRel(currentDate)||'';document.getElementById('dateLabel').textContent=fmtDate(currentDate);const isToday=currentDate===todayStr();const entry=getEntry(currentDate);const locked=!!(entry&&entry.locked);document.getElementById('lockedBanner').style.display=locked?'block':'none';const saveBtn=document.getElementById('saveBtn');const deleteBtn=document.getElementById('deleteBtn');if(!connected){saveBtn.disabled=true;saveBtn.style.display='block';saveBtn.textContent='Connecte-toi à Google Drive pour enregistrer';deleteBtn.style.display='none';}else if(locked){saveBtn.disabled=true;saveBtn.style.display='block';saveBtn.textContent='Entrée enregistrée';deleteBtn.style.display='block';}else if(!isToday){saveBtn.style.display='none';deleteBtn.style.display='none';}else{saveBtn.style.display='block';saveBtn.disabled=false;saveBtn.textContent='Enregistrer';deleteBtn.style.display='none';}renderQuestions(entry,locked||(!isToday&&!!entry));const has2=allEntries.length>=2;['b7j','bglobal','bames','memoireBtn'].forEach(id=>document.getElementById(id).disabled=!has2);}
+render();initConnect();
+document.getElementById('prevBtn').addEventListener('click',()=>{const d=new Date(currentDate);d.setDate(d.getDate()-1);currentDate=d.toISOString().slice(0,10);pendingNotes=[];render();document.getElementById('bilanWrap').innerHTML='';document.getElementById('memoireOutput').style.display='none';});
+document.getElementById('nextBtn').addEventListener('click',()=>{const d=new Date(currentDate);d.setDate(d.getDate()+1);const s=d.toISOString().slice(0,10);if(s<=todayStr()){currentDate=s;pendingNotes=[];render();document.getElementById('bilanWrap').innerHTML='';document.getElementById('memoireOutput').style.display='none';}});
+document.getElementById('saveBtn').addEventListener('click',async()=>{const btn=document.getElementById('saveBtn');btn.disabled=true;btn.textContent='Analyse en cours...';const answers=QUESTIONS.map((_,i)=>document.getElementById('q'+i).value.trim());const libre=document.getElementById('q5').value.trim();const notes=pendingNotes.filter(n=>n.transcription&&!n.transcribing).map(n=>({transcription:n.transcription}));const responses=[];for(let i=0;i<5;i++){if(answers[i]){try{const r=await callClaude(`Tu es un interlocuteur bienveillant mais direct. Question posée : "${QUESTIONS[i]}". Réponse de l'utilisateur : "${answers[i]}". Écris une seule phrase courte (max 15 mots), sans guillemets.`);responses.push(r);}catch(e){responses.push('');}}else responses.push('');}setEntry(currentDate,{answers,libre,notes,responses,locked:true,savedAt:new Date().toISOString()});btn.textContent='Sauvegarde...';await saveToDrive();showToast('Entrée enregistrée et sauvegardée sur Google Drive ✓');pendingNotes=[];render();});
+document.getElementById('deleteBtn').addEventListener('click',async()=>{if(!confirm('Supprimer cette entrée définitivement ?'))return;deleteEntry(currentDate);await saveToDrive();showToast('Entrée supprimée.');pendingNotes=[];render();});
+async function callClaude(prompt){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,system:'Tu es bienveillant et direct. Une phrase max.',messages:[{role:'user',content:prompt}]})});const d=await r.json();return d.content?d.content.filter(b=>b.type==='text').map(b=>b.text).join(''):'';}
+async function callClaudeBilan(prompt){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'Réponds UNIQUEMENT en JSON valide, sans backticks, sans texte autour.',messages:[{role:'user',content:prompt}]})});const d=await r.json();const raw=d.content?d.content.filter(b=>b.type==='text').map(b=>b.text).join(''):'{}';try{return JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){return{};}}
+async function renderBilan(type){const bw=document.getElementById('bilanWrap');bw.innerHTML=`<div class="lmsg">Génération en cours...</div>`;let pool=allEntries;if(type==='7j'){const c=new Date(todayStr());c.setDate(c.getDate()-7);pool=allEntries.filter(e=>e._date>=c.toISOString().slice(0,10));}if(pool.length<2){bw.innerHTML=`<div class="lmsg">Pas assez d'entrées sur cette période.</div>`;return;}if(type==='ames'){const libres=pool.filter(e=>e.libre||(e.notes&&e.notes.length)).map(e=>{let parts=[];if(e.libre&&e.libre.trim())parts.push(`Texte libre : ${e.libre}`);if(e.notes&&e.notes.length)parts.push(`Notes manuscrites :\n${e.notes.map(n=>n.transcription).join('\n---\n')}`);return parts.length?`[${e._date}]\n${parts.join('\n\n')}`:'';}).filter(Boolean).join('\n\n');if(!libres){bw.innerHTML=`<div class="lmsg">Pas de contenu libre rempli.</div>`;return;}const res=await callClaudeBilan(`Voici les espaces libres et notes manuscrites d'un journal du soir :\n\n${libres}\n\nGénère un JSON avec exactement ces clés : "continuite" (fils conducteurs émotionnels), "ruptures" (changements ou bascules), "lecture" (ce que ça révèle sans filtre).`);bw.innerHTML=`<div class="bilan-card"><div class="bilan-title">Bilan états d'âme — ${pool.length} entrées</div><div class="bilan-section s-rose"><strong>Continuité émotionnelle</strong><br>${res.continuite||'—'}</div><div class="bilan-section s-amber"><strong>Ruptures ou variations</strong><br>${res.ruptures||'—'}</div><div class="bilan-section s-grisbleu"><strong>Ce que ça dit</strong><br>${res.lecture||'—'}</div></div>`;}else{const lines=pool.map(e=>QUESTIONS.map((q,i)=>`Q${i+1} — ${q}\nRéponse : ${e.answers&&e.answers[i]?e.answers[i]:'—'}`).join('\n')+`\nDate : ${e._date}`).join('\n\n---\n\n');const label=type==='7j'?'7 derniers jours':'toute la période';const res=await callClaudeBilan(`Voici les entrées de journal du soir pour ${label} :\n\n${lines}\n\nGénère un JSON avec exactement ces clés : "avance" (progressions concrètes), "stagne" (ce qui tourne en rond, sans ménagement), "pattern" (schéma récurrent émotionnel ou comportemental), "actions" (2-3 choses concrètes et inconfortables à mettre en place).`);bw.innerHTML=`<div class="bilan-card"><div class="bilan-title">${type==='7j'?'7 derniers jours':'Bilan global'} — ${pool.length} entrée(s)</div><div class="bilan-section s-vert"><strong>Ce qui avance</strong><br>${res.avance||'—'}</div><div class="bilan-section s-orange"><strong>Ce qui stagne ou régresse</strong><br>${res.stagne||'—'}</div><div class="bilan-section s-violet"><strong>Pattern</strong><br>${res.pattern||'—'}</div><div class="bilan-section s-bleu"><strong>Ce que tu peux mettre en place</strong><br>${res.actions||'—'}</div></div>`;}}
 document.getElementById('b7j').addEventListener('click',()=>renderBilan('7j'));
 document.getElementById('bglobal').addEventListener('click',()=>renderBilan('global'));
 document.getElementById('bames').addEventListener('click',()=>renderBilan('ames'));
-
-document.getElementById('memoireBtn').addEventListener('click',async()=>{
-  const btn=document.getElementById('memoireBtn');btn.disabled=true;btn.textContent='Génération en cours...';
-  const lines=allEntries.map(e=>{
-    const qs=QUESTIONS.map((q,i)=>`- ${q}\n  Réponse : ${e.answers&&e.answers[i]?e.answers[i]:'—'}`).join('\n');
-    const libre=e.libre?`\n- Espace libre :\n  ${e.libre}`:'';
-    return `=== ${e._date} ===\n${qs}${libre}`;
-  }).join('\n\n');
-  const prompt=`Voici toutes les entrées d'un journal du soir personnel :\n\n${lines}\n\nGénère un résumé mémoire en deux parties :\n1. PROFIL FACTUEL — activités, habitudes, avancées et blocages récurrents.\n2. PROFIL ÉMOTIONNEL — patterns de pensée, besoins, tensions internes, façon de se traiter.\nRédige à la deuxième personne (tu/te), formulé comme un prompt prêt à envoyer à Claude. Commence par : "Voici ce que tu dois mémoriser sur moi à partir de mon journal du soir :"`;
-  try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'Tu analyses des journaux intimes et génères des résumés mémoire précis et sans filtre, à la deuxième personne.',messages:[{role:'user',content:prompt}]})});
-    const d=await r.json();
-    const text=d.content?d.content.filter(b=>b.type==='text').map(b=>b.text).join(''):'';
-    document.getElementById('memoireText').textContent=text;
-    document.getElementById('memoireOutput').style.display='block';
-  }catch(e){showToast('Erreur lors de la génération.');}
-  btn.disabled=false;btn.textContent='Générer un résumé mémoire';
-});
-
-document.getElementById('memoireCopyBtn').addEventListener('click',()=>{
-  navigator.clipboard.writeText(document.getElementById('memoireText').textContent)
-    .then(()=>showToast('Copié !'))
-    .catch(()=>showToast('Copie manuelle nécessaire.'));
-});
+document.getElementById('memoireBtn').addEventListener('click',async()=>{const btn=document.getElementById('memoireBtn');btn.disabled=true;btn.textContent='Génération en cours...';const lines=allEntries.map(e=>{const qs=QUESTIONS.map((q,i)=>`- ${q}\n  Réponse : ${e.answers&&e.answers[i]?e.answers[i]:'—'}`).join('\n');const libre=e.libre?`\n- Texte libre :\n  ${e.libre}`:'';const notes=e.notes&&e.notes.length?`\n- Notes manuscrites :\n  ${e.notes.map(n=>n.transcription).join('\n  ---\n  ')}`:'';return `=== ${e._date} ===\n${qs}${libre}${notes}`;}).join('\n\n');const prompt=`Voici toutes les entrées d'un journal du soir personnel :\n\n${lines}\n\nGénère un résumé mémoire en deux parties :\n1. PROFIL FACTUEL — activités, habitudes, avancées et blocages récurrents.\n2. PROFIL ÉMOTIONNEL — patterns de pensée, besoins, tensions internes, façon de se traiter.\nRédige à la deuxième personne (tu/te), formulé comme un prompt prêt à envoyer à Claude. Commence par : "Voici ce que tu dois mémoriser sur moi à partir de mon journal du soir :"`;try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'Tu analyses des journaux intimes et génères des résumés mémoire précis et sans filtre, à la deuxième personne.',messages:[{role:'user',content:prompt}]})});const d=await r.json();const text=d.content?d.content.filter(b=>b.type==='text').map(b=>b.text).join(''):'';document.getElementById('memoireText').textContent=text;document.getElementById('memoireOutput').style.display='block';}catch(e){showToast('Erreur lors de la génération.');}btn.disabled=false;btn.textContent='Générer un résumé mémoire';});
+document.getElementById('memoireCopyBtn').addEventListener('click',()=>{navigator.clipboard.writeText(document.getElementById('memoireText').textContent).then(()=>showToast('Copié !')).catch(()=>showToast('Copie manuelle nécessaire.'));});
 </script>
 </body>
 </html>
