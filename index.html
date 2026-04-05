@@ -1,144 +1,319 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Journal du soir</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f9f9f7;color:#1a1a1a;padding:1rem}
-.wrap{padding:1.5rem 0;max-width:680px;margin:0 auto}
-.nav-btn{background:none;border:0.5px solid #ccc;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;color:#666}
-.nav-btn:hover{background:#f0f0ee}
-.day-label{font-size:20px;font-weight:500;color:#1a1a1a}
-.date-label{font-size:13px;color:#999;text-align:center}
-.card{background:#fff;border:0.5px solid #e0e0dc;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
-.q-num{font-size:11px;color:#aaa;margin-bottom:4px}
-.q-label{font-size:14px;font-weight:500;color:#1a1a1a;margin-bottom:10px;line-height:1.4}
-textarea{width:100%;resize:vertical;border:0.5px solid #e0e0dc;border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;color:#1a1a1a;background:#f9f9f7;line-height:1.6}
-textarea:focus{outline:none;border-color:#bbb}
-textarea:disabled{opacity:0.6;cursor:default}
-.libre-tag{font-size:11px;color:#aaa;border:0.5px solid #e0e0dc;border-radius:8px;padding:2px 8px}
-.section-divider{border:none;border-top:0.5px solid #e0e0dc;margin:1rem 0}
-.notes-zone{margin-top:1rem}
-.notes-label{font-size:12px;font-weight:500;color:#aaa;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.upload-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:0.5px dashed #ccc;border-radius:8px;background:none;cursor:pointer;font-size:13px;color:#666}
-.upload-btn:hover{background:#f0f0ee;border-style:solid}
-.notes-list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
-.note-item{background:#f9f9f7;border:0.5px solid #e0e0dc;border-radius:8px;padding:10px 12px}
-.note-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.note-item-label{font-size:11px;color:#aaa}
-.note-remove{background:none;border:none;cursor:pointer;font-size:13px;color:#ccc;padding:0}
-.note-remove:hover{color:#c0392b}
-.note-thumb{width:60px;height:60px;object-fit:cover;border-radius:6px;border:0.5px solid #e0e0dc}
-.note-pending{font-size:12px;color:#aaa;font-style:italic;margin-top:6px}
-.action-btn{width:100%;padding:10px;border:0.5px solid #ccc;border-radius:8px;background:none;cursor:pointer;font-size:14px;font-weight:500;color:#1a1a1a;margin-bottom:0.75rem}
-.action-btn:hover{background:#f0f0ee}
-.action-btn:disabled{opacity:0.4;cursor:default}
-.delete-btn{width:100%;padding:8px;border:0.5px solid #f0c0c0;border-radius:8px;background:none;cursor:pointer;font-size:13px;color:#c0392b;margin-bottom:0.75rem;display:none}
-.delete-btn:hover{background:#fff0f0}
-.locked-banner{text-align:center;font-size:13px;color:#999;padding:6px 0;margin-bottom:0.75rem;display:none}
-.claude-section{margin-bottom:1.5rem;display:flex;flex-direction:column;gap:8px}
-.claude-btn{width:100%;padding:10px;border:0.5px solid #534AB7;border-radius:8px;background:none;cursor:pointer;font-size:13px;font-weight:500;color:#534AB7}
-.claude-btn:hover{background:#eeedfe}
-.claude-btn:disabled{opacity:0.4;cursor:default}
-.claude-btn.memoire{border-color:#888780;color:#5F5E5A}
-.claude-btn.memoire:hover{background:#f1efe8}
-.gdrive-bar{background:#fff;border:0.5px solid #e0e0dc;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem}
-.gdrive-bar-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.gdrive-status{font-size:12px;color:#aaa;margin-top:6px}
-.gdrive-doc-link{font-size:12px;margin-top:6px;display:none}
-.gdrive-doc-link a{color:#185FA5;text-decoration:none}
-.gdrive-doc-link a:hover{text-decoration:underline}
-.gdrive-btn{padding:7px 14px;border:0.5px solid #ccc;border-radius:8px;background:#f9f9f7;cursor:pointer;font-size:13px;color:#666;white-space:nowrap}
-.gdrive-btn:hover{background:#f0f0ee}
-.gdrive-btn.connected{border-color:#639922;color:#3B6D11}
-.toast{background:#fff;border:0.5px solid #ccc;border-radius:8px;padding:8px 16px;font-size:13px;color:#1a1a1a;margin-bottom:1rem;display:none}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Journal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f7f8f5;
+      --text-dark: #141414;
+      --text-mid: #535353;
+      --text-light: #9a9a9a;
+      --text-grey: #878787;
+      --text-muted: #4c4c48;
+      --accent: #4133a8;
+      --white: #ffffff;
+      --border: #e5e5e0;
+      --radius: 14px;
+    }
+
+    body {
+      background-color: var(--bg);
+      font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* Google Drive bar */
+    .drive-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--white);
+      border-radius: var(--radius) var(--radius) 0 0;
+      border: 1px solid var(--border);
+      border-bottom: none;
+    }
+
+    .drive-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-dark);
+      font-weight: 500;
+    }
+
+    .drive-bar-left .icon {
+      font-size: 16px;
+    }
+
+    .drive-connect-btn {
+      font-size: 13px;
+      color: var(--accent);
+      background: none;
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      padding: 4px 12px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .drive-connect-btn:hover {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    /* Status */
+    .drive-status {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-light);
+      padding: 6px 16px 10px;
+      background: var(--white);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    /* Journal card */
+    .journal-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      padding: 24px 20px 20px;
+    }
+
+    /* Navigation date */
+    .date-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .date-nav button {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: var(--text-mid);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: background 0.12s;
+      font-family: inherit;
+      line-height: 1;
+    }
+
+    .date-nav button:hover {
+      background: var(--bg);
+    }
+
+    .date-display {
+      text-align: center;
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 20px;
+      color: var(--text-dark);
+      letter-spacing: -0.3px;
+      min-height: 28px;
+      flex: 1;
+    }
+
+    .date-display.empty {
+      min-height: 28px;
+    }
+
+    /* Day label */
+    .day-label {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-grey);
+      margin-bottom: 16px;
+      min-height: 18px;
+    }
+
+    /* Entry area */
+    .entry-area {
+      width: 100%;
+      min-height: 140px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
+      font-size: 14px;
+      color: var(--text-dark);
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+      line-height: 1.6;
+    }
+
+    .entry-area::placeholder {
+      color: var(--text-light);
+      font-style: italic;
+    }
+
+    .entry-area:focus {
+      border-color: var(--accent);
+      background: var(--white);
+    }
+
+    /* Save notice */
+    .save-notice {
+      font-size: 14px;
+      color: var(--text-dark);
+      margin-top: 14px;
+      font-weight: 400;
+    }
+
+    /* Actions */
+    .actions {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 4px 0 8px;
+    }
+
+    .action-link {
+      display: block;
+      text-align: center;
+      font-size: 13px;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 9px 16px;
+      transition: background 0.12s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .action-link:hover {
+      background: rgba(65, 51, 168, 0.05);
+    }
+
+    .action-link.muted {
+      color: var(--text-muted);
+    }
+
+    .action-link.muted:hover {
+      background: rgba(76, 76, 72, 0.06);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0 16px;
+    }
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="gdrive-bar">
-    <div class="gdrive-bar-top">
-      <div style="font-size:13px;font-weight:500;color:#1a1a1a">☁️ Google Drive</div>
-      <button class="gdrive-btn" id="gdriveBtn">Se connecter</button>
+  <div class="container">
+
+    <!-- Google Drive bar -->
+    <div class="drive-bar">
+      <div class="drive-bar-left">
+        <span class="icon">☁️</span>
+        <span>Google Drive</span>
+      </div>
+      <button class="drive-connect-btn">Se connecter</button>
     </div>
-    <div class="gdrive-status" id="gdriveStatus">Non connecté — connecte-toi pour sauvegarder ton journal.</div>
-    <div class="gdrive-doc-link" id="gdriveDocLink">📄 <a id="gdriveDocAnchor" href="#" target="_blank">Ouvrir le Google Doc du journal</a></div>
-  </div>
-  <div id="toast" class="toast"></div>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
-    <button class="nav-btn" id="prevBtn">←</button>
-    <div style="text-align:center">
+
+    <div class="drive-status">
+      Non connecté — connecte-toi pour sauvegarder ton journal.
+    </div>
+
+    <!-- Journal card -->
+    <div class="journal-card">
+
+      <!-- Date navigation -->
+      <div class="date-nav">
+        <button aria-label="Jour précédent">←</button>
+        <div class="date-display" id="dateDisplay"></div>
+        <button aria-label="Jour suivant">→</button>
+      </div>
+
       <div class="day-label" id="dayLabel"></div>
-      <div class="date-label" id="dateLabel"></div>
+
+      <!-- Entry textarea -->
+      <textarea
+        class="entry-area"
+        id="entryArea"
+        placeholder="Écris ici…"
+        rows="6"
+      ></textarea>
+
+      <p class="save-notice">Connecte-toi à Google Drive pour enregistrer</p>
+
     </div>
-    <button class="nav-btn" id="nextBtn">→</button>
+
+    <!-- Action links -->
+    <div class="actions">
+      <button class="action-link">Bilan 7 derniers jours ↗</button>
+      <div class="divider"></div>
+      <button class="action-link">Bilan global ↗</button>
+      <div class="divider"></div>
+      <button class="action-link">Bilan états d'âme ↗</button>
+      <div class="divider"></div>
+      <button class="action-link muted">Mémoriser le journal ↗</button>
+    </div>
+
   </div>
-  <div id="lockedBanner" class="locked-banner">Entrée enregistrée pour aujourd'hui.</div>
-  <div id="questionsWrap"></div>
-  <button class="action-btn" id="saveBtn" disabled>Connecte-toi à Google Drive pour enregistrer</button>
-  <button class="delete-btn" id="deleteBtn">Supprimer cette entrée</button>
-  <div class="claude-section">
-    <button class="claude-btn" id="btn7j" disabled>Bilan 7 derniers jours ↗</button>
-    <button class="claude-btn" id="btnGlobal" disabled>Bilan global ↗</button>
-    <button class="claude-btn" id="btnAmes" disabled>Bilan états d'âme ↗</button>
-    <button class="claude-btn memoire" id="btnMemoire" disabled>Mémoriser le journal ↗</button>
-  </div>
-</div>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script>
-const CLIENT_ID='656626464520-relhdglrev2himlms0vjffqiq7tie6m6.apps.googleusercontent.com';
-const SCOPES='https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/documents';
-const FILE_NAME='journal_du_soir_v2.json';
-const DOC_NAME='Journal du soir — Claude';
-const QUESTIONS=[
-  "Qu'est-ce que tu as fait aujourd'hui — une chose concrète, même petite ?",
-  "Est-ce que tu as eu une spirale anxieuse aujourd'hui ? Si oui, sur quoi ?",
-  "Comment tu t'es traité aujourd'hui ?",
-  "Tu as agi pour toi aujourd'hui, ou pour le regard de quelqu'un d'autre ?",
-  "Une chose que tu as faite aujourd'hui dont tu n'as pas minimisé la valeur."
-];
-const Q_LIBRE="Comment tu te sens ce soir — tes pensées, textes, poèmes, ce que tu veux écrire.";
-const Q_NOTES="Notes manuscrites — photos de tes écrits du jour (seront transcrites par Claude).";
-const PROMPTS={
-  p7j:`Voici mes entrées de journal du soir des 7 derniers jours. Si certaines entrées contiennent des photos de notes manuscrites non encore transcrites, transcris-les d'abord fidèlement (style, ponctuation, sauts de ligne respectés, sans correction). Si elles sont déjà transcrites en mémoire, pars directement de là. Ensuite fais le bilan en 4 parties : 1) CE QUI AVANCE — progressions concrètes, 2) CE QUI STAGNE OU RÉGRESSE — sans ménagement, si je tourne en rond dis-le, 3) PATTERN DE LA SEMAINE — schéma récurrent émotionnel ou comportemental, 4) CE QUE JE PEUX METTRE EN PLACE — 2-3 choses concrètes et inconfortables. Direct, clair, respectueux mais sans complaisance.\n\n`,
-  pglobal:`Voici toutes mes entrées de journal du soir. Si certaines contiennent des photos de notes manuscrites non encore transcrites, transcris-les d'abord fidèlement. Si elles sont déjà en mémoire, pars de là directement. Ensuite analyse toute la période : 1) CE QUI A PROGRESSÉ — évolutions concrètes sur la durée, 2) CE QUI PERSISTE — patterns récurrents qui ne bougent pas, 3) ÉVOLUTION GLOBALE — comment j'ai évolué émotionnellement et comportementalement depuis le début, 4) UN DÉFI POUR LA SUITE — une chose précise, inconfortable, adaptée à où j'en suis. Direct, sans fausse bienveillance.\n\n`,
-  pames:`Voici mes entrées de journal du soir. Si certaines contiennent des photos de notes manuscrites non encore transcrites, commence par les transcrire fidèlement — c'est la priorité ici. Si elles sont déjà transcrites en mémoire, pars directement de là. Ensuite analyse mes états d'âme sur toute la période, en prenant en compte les 5 questions structurées ET les textes libres — mes états émotionnels traversent tout. 1) CONTINUITÉ ÉMOTIONNELLE — les fils conducteurs, ce qui revient, 2) RUPTURES OU VARIATIONS — ce qui a changé, les bascules, 3) CE QUE ÇA DIT — lecture sans filtre de ce que ça révèle sur moi. Direct, respectueux, sans complaisance.\n\n`,
-  pmemoire:`Voici les entrées de mon journal du soir. Si certaines contiennent des photos de notes manuscrites non encore transcrites, transcris-les fidèlement et mémorise-les. Mémorise tout ce qui suit — états émotionnels, patterns de pensée, façon de me traiter, tensions internes, évolutions. Tu peux condenser et résumer pour éviter les doublons et les redites avec ce que tu as déjà en mémoire — l'objectif c'est une mémoire propre et à jour, pas exhaustive. Ne génère pas d'analyse, ne pose pas de questions. Confirme simplement en une phrase que c'est mémorisé.\n\n`
-};
-let accessToken=null,fileId=null,docId=null,allEntries=[],currentDate=todayStr(),connected=false,pendingNotes=[];
-function todayStr(){return new Date().toISOString().slice(0,10)}
-function fmtDate(s){const[y,m,d]=s.split('-');return new Date(y,m-1,d).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
-function dayRel(s){const t=todayStr();if(s===t)return"Aujourd'hui";const diff=Math.round((new Date(t)-new Date(s))/86400000);if(diff===1)return'Hier';if(diff===-1)return'Demain';return''}
-function showToast(msg,dur=3500){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',dur)}
-function getEntry(date){return allEntries.find(e=>e._date===date)||null}
-function setEntry(date,data){const idx=allEntries.findIndex(e=>e._date===date);const entry={...data,_date:date};if(idx>=0)allEntries[idx]=entry;else allEntries.push(entry);allEntries.sort((a,b)=>a._date.localeCompare(b._date))}
-function deleteEntry(date){allEntries=allEntries.filter(e=>e._date!==date)}
-async function driveReq(url,opts={}){return fetch(url,{...opts,headers:{'Authorization':'Bearer '+accessToken,...(opts.headers||{})}})}
-async function findFile(name,mimeType){const q=mimeType?`name='${name}' and mimeType='${mimeType}' and trashed=false`:`name='${name}' and trashed=false`;const res=await driveReq(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)&spaces=drive`);const d=await res.json();return d.files&&d.files.length?d.files[0].id:null}
-async function loadFromDrive(){try{fileId=await findFile(FILE_NAME);if(!fileId){allEntries=[];return;}const res=await driveReq(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);const d=await res.json();allEntries=Array.isArray(d)?d:[];}catch(e){allEntries=[];}try{docId=await findFile(DOC_NAME,'application/vnd.google-apps.document');if(docId)showDocLink();}catch(e){}}
-async function saveToDrive(){const blob=new Blob([JSON.stringify(allEntries,null,2)],{type:'application/json'});if(fileId){await driveReq(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`,{method:'PATCH',body:blob,headers:{'Content-Type':'application/json'}});}else{const meta=JSON.stringify({name:FILE_NAME,mimeType:'application/json'});const form=new FormData();form.append('metadata',new Blob([meta],{type:'application/json'}));form.append('file',blob);const res=await driveReq('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body:form});const d=await res.json();fileId=d.id;}}
-function buildDocText(){return allEntries.map(e=>{const qs=QUESTIONS.map((q,i)=>`  Q${i+1}. ${q}\n  → ${e.answers&&e.answers[i]?e.answers[i]:'—'}`).join('\n');const libre=e.libre?`\n  Texte libre :\n  ${e.libre}`:'';const notes=e.notes&&e.notes.length?`\n  Notes manuscrites (${e.notes.length} photo(s)) :\n  ${e.notes.filter(n=>n.transcription).map(n=>n.transcription).join('\n  ---\n  ')}`:'';return `═══ ${fmtDate(e._date)} ═══\n${qs}${libre}${notes}`;}).join('\n\n');}
-async function saveToDoc(){try{const text=buildDocText();if(docId){const docRes=await driveReq(`https://docs.googleapis.com/v1/documents/${docId}`);const doc=await docRes.json();const endIndex=doc.body&&doc.body.content?doc.body.content[doc.body.content.length-1].endIndex-1:1;if(endIndex>1){await driveReq(`https://docs.googleapis.com/v1/documents/${docId}:batchUpdate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({requests:[{deleteContentRange:{range:{startIndex:1,endIndex:endIndex}}}]})});}if(text){await driveReq(`https://docs.googleapis.com/v1/documents/${docId}:batchUpdate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({requests:[{insertText:{location:{index:1},text}}]})});}}else{{const res=await driveReq('https://docs.googleapis.com/v1/documents',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:DOC_NAME})});const d=await res.json();docId=d.documentId;if(text){await driveReq(`https://docs.googleapis.com/v1/documents/${docId}:batchUpdate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({requests:[{insertText:{location:{index:1},text}}]})});}showDocLink();}}catch(e){console.error('Doc:',e);}}
-function showDocLink(){if(!docId)return;document.getElementById('gdriveDocLink').style.display='block';document.getElementById('gdriveDocAnchor').href=`https://docs.google.com/document/d/${docId}/edit`;}
-function initConnect(){const btn=document.getElementById('gdriveBtn');btn.addEventListener('click',()=>{if(!window.google||!window.google.accounts){showToast('Chargement en cours, réessaie dans 2 secondes.');return;}const client=window.google.accounts.oauth2.initTokenClient({client_id:CLIENT_ID,scope:SCOPES,callback:async resp=>{if(resp.error){showToast('Erreur de connexion.');return;}accessToken=resp.access_token;connected=true;btn.textContent='✓ Connecté';btn.classList.add('connected');document.getElementById('gdriveStatus').textContent='Connecté — données synchronisées avec Google Drive.';showToast('Connecté à Google Drive ✓');await loadFromDrive();render();}});client.requestAccessToken({prompt:'consent'});})}
-function fileToDataUrl(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);})}
-function renderNotesSaved(notes,container){container.innerHTML='';if(!notes||!notes.length)return;notes.forEach((n,i)=>{const item=document.createElement('div');item.className='note-item';const trans=n.transcription?`<div style="font-size:13px;color:#555;margin-top:6px;white-space:pre-wrap">${n.transcription}</div>`:`<div class="note-pending">📷 Photo enregistrée — sera transcrite par Claude</div>`;item.innerHTML=`<div class="note-item-header"><span class="note-item-label">Note ${i+1}</span></div>${n.dataUrl?`<img src="${n.dataUrl}" class="note-thumb" alt="note"> `:''}${trans}`;container.appendChild(item);});}
-function renderNotesPending(container){container.innerHTML='';pendingNotes.forEach((n,i)=>{const item=document.createElement('div');item.className='note-item';item.innerHTML=`<div class="note-item-header"><span class="note-item-label">Note ${i+1}</span><button class="note-remove" data-idx="${i}">✕</button></div><img src="${n.dataUrl}" class="note-thumb" alt="note"><div class="note-pending">📷 Sera transcrite par Claude à l'envoi</div>`;container.appendChild(item);});container.querySelectorAll('.note-remove').forEach(btn=>{btn.addEventListener('click',()=>{pendingNotes.splice(parseInt(btn.dataset.idx),1);renderNotesPending(container);});});}
-function renderQuestions(entry,locked){const w=document.getElementById('questionsWrap');w.innerHTML='';QUESTIONS.forEach((q,i)=>{const c=document.createElement('div');c.className='card';const val=entry&&entry.answers&&entry.answers[i]?entry.answers[i]:'';c.innerHTML=`<div class="q-num">Question ${i+1}</div><div class="q-label">${q}</div><textarea rows="2" id="q${i}"${locked?' disabled':''}>${val}</textarea>`;w.appendChild(c);});const cl=document.createElement('div');cl.className='card';const libreVal=entry&&entry.libre?entry.libre:'';cl.innerHTML=`<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px"><div class="q-label" style="margin:0">Ce soir</div><span class="libre-tag">espace libre</span></div><div style="font-size:13px;color:#aaa;margin-bottom:8px">${Q_LIBRE}</div><textarea rows="5" id="q5"${locked?' disabled':''}>${libreVal}</textarea><hr class="section-divider"><div class="notes-zone"><div class="notes-label"><span>📝 Notes manuscrites</span><span style="font-size:11px;color:#ccc;font-weight:400">optionnel</span></div><div style="font-size:12px;color:#aaa;margin-bottom:8px">${Q_NOTES}</div>${!locked?`<button class="upload-btn" id="uploadNoteBtn">📷 Ajouter une photo</button><input type="file" id="noteFileInput" accept="image/*" style="display:none" multiple>`:''}<div class="notes-list" id="notesList"></div></div>`;w.appendChild(cl);const notesList=cl.querySelector('#notesList');if(locked){if(entry&&entry.notes&&entry.notes.length)renderNotesSaved(entry.notes,notesList);}else{pendingNotes=[];renderNotesPending(notesList);const uploadBtn=cl.querySelector('#uploadNoteBtn');const fileInput=cl.querySelector('#noteFileInput');uploadBtn.addEventListener('click',()=>fileInput.click());fileInput.addEventListener('change',async e=>{const files=Array.from(e.target.files);for(const file of files){const dataUrl=await fileToDataUrl(file);pendingNotes.push({dataUrl,transcription:null});}renderNotesPending(notesList);fileInput.value='';});}}
-function render(){document.getElementById('dayLabel').textContent=dayRel(currentDate)||'';document.getElementById('dateLabel').textContent=fmtDate(currentDate);const isToday=currentDate===todayStr();const entry=getEntry(currentDate);const locked=!!(entry&&entry.locked);document.getElementById('lockedBanner').style.display=locked?'block':'none';const saveBtn=document.getElementById('saveBtn');const deleteBtn=document.getElementById('deleteBtn');if(!connected){saveBtn.disabled=true;saveBtn.style.display='block';saveBtn.textContent='Connecte-toi à Google Drive pour enregistrer';deleteBtn.style.display='none';}else if(locked){saveBtn.disabled=true;saveBtn.style.display='block';saveBtn.textContent='Entrée enregistrée';deleteBtn.style.display='block';}else if(!isToday){saveBtn.style.display='none';deleteBtn.style.display='none';}else{saveBtn.style.display='block';saveBtn.disabled=false;saveBtn.textContent='Enregistrer';deleteBtn.style.display='none';}renderQuestions(entry,locked||(!isToday&&!!entry));const has=allEntries.length>=1;['btn7j','btnGlobal','btnAmes','btnMemoire'].forEach(id=>document.getElementById(id).disabled=!has);}
-render();initConnect();
-document.getElementById('prevBtn').addEventListener('click',()=>{const d=new Date(currentDate);d.setDate(d.getDate()-1);currentDate=d.toISOString().slice(0,10);pendingNotes=[];render();});
-document.getElementById('nextBtn').addEventListener('click',()=>{const d=new Date(currentDate);d.setDate(d.getDate()+1);const s=d.toISOString().slice(0,10);if(s<=todayStr()){currentDate=s;pendingNotes=[];render();}});
-document.getElementById('saveBtn').addEventListener('click',async()=>{const btn=document.getElementById('saveBtn');btn.disabled=true;btn.textContent='Enregistrement...';const answers=QUESTIONS.map((_,i)=>document.getElementById('q'+i).value.trim());const libre=document.getElementById('q5').value.trim();const notes=pendingNotes.map(n=>({dataUrl:n.dataUrl,transcription:null}));setEntry(currentDate,{answers,libre,notes,locked:true,savedAt:new Date().toISOString()});await saveToDrive();await saveToDoc();showToast('Entrée enregistrée sur Google Drive ✓');pendingNotes=[];render();});
-document.getElementById('deleteBtn').addEventListener('click',async()=>{if(!confirm('Supprimer cette entrée définitivement ?'))return;deleteEntry(currentDate);await saveToDrive();await saveToDoc();showToast('Entrée supprimée.');pendingNotes=[];render();});
-function buildEntries(pool){return pool.map(e=>{const qs=QUESTIONS.map((q,i)=>`Q${i+1}. ${q}\n→ ${e.answers&&e.answers[i]?e.answers[i]:'—'}`).join('\n');const libre=e.libre?`\nTexte libre :\n${e.libre}`:'';const notesText=e.notes&&e.notes.length?`\nNotes manuscrites (${e.notes.length} photo(s) jointes — à transcrire si pas encore fait) :`:'';return `=== ${fmtDate(e._date)} ===\n${qs}${libre}${notesText}`;}).join('\n\n---\n\n');}
-function sendToClaude(promptPrefix,pool){const entries=buildEntries(pool);const full=promptPrefix+entries;navigator.clipboard.writeText(full).then(()=>{showToast('Prompt copié — colle-le dans Claude ✓');setTimeout(()=>window.open('https://claude.ai/new','_blank'),600);}).catch(()=>{showToast('Ouvre Claude et colle manuellement.');window.open('https://claude.ai/new','_blank');});}
-document.getElementById('btn7j').addEventListener('click',()=>{const c=new Date(todayStr());c.setDate(c.getDate()-7);const pool=allEntries.filter(e=>e._date>=c.toISOString().slice(0,10));sendToClaude(PROMPTS.p7j,pool.length?pool:allEntries);});
-document.getElementById('btnGlobal').addEventListener('click',()=>sendToClaude(PROMPTS.pglobal,allEntries));
-document.getElementById('btnAmes').addEventListener('click',()=>sendToClaude(PROMPTS.pames,allEntries));
-document.getElementById('btnMemoire').addEventListener('click',()=>sendToClaude(PROMPTS.pmemoire,allEntries));
-</script>
+
+  <script>
+    // Display today's date in French
+    const dateDisplay = document.getElementById('dateDisplay');
+    const dayLabel = document.getElementById('dayLabel');
+
+    let currentDate = new Date();
+
+    function formatDate(date) {
+      return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function formatDay(date) {
+      return date.toLocaleDateString('fr-FR', { weekday: 'long' });
+    }
+
+    function updateDisplay() {
+      dateDisplay.textContent = formatDate(currentDate);
+      dayLabel.textContent = formatDay(currentDate).charAt(0).toUpperCase() + formatDay(currentDate).slice(1);
+    }
+
+    updateDisplay();
+
+    // Navigation
+    document.querySelectorAll('.date-nav button').forEach((btn, i) => {
+      btn.addEventListener('click', () => {
+        currentDate.setDate(currentDate.getDate() + (i === 0 ? -1 : 1));
+        updateDisplay();
+      });
+    });
+  </script>
 </body>
 </html>
